@@ -36,7 +36,6 @@ public class App extends ListenerAdapter
         if(objMsg.getContentRaw().equalsIgnoreCase(Ref.prefix + "Tes"))
         {
             objMsgChannel.sendMessage(objUsers.getAsMention()+" HALO "+objUsers.getName()).queue();
-            objMsgChannel.
 
 
 
