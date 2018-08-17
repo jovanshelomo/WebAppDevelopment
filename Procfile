@@ -1,1 +1,1 @@
-worker: java App.class
+worker: java App.java
