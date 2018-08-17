@@ -1,1 +1,1 @@
-worker: java App.java
+worker: java src/main/java/com/webapp/testbot/App.java
