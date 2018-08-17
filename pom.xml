@@ -8,6 +8,8 @@
   <artifactId>WebAppDevelopmentBot</artifactId>
   <version>1.0-SNAPSHOT</version>
 
+
+
   <name>WebAppDevelopmentBot</name>
   <!-- FIXME change it to the project's website -->
   <url>https://discordapp.com</url>
@@ -35,6 +37,12 @@
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
+
+        <plugin>
+          <groupId>com.heroku.sdk</groupId>
+          <artifactId>heroku-maven-plugin</artifactId>
+          <version>2.0.3</version>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
