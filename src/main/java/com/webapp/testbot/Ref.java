@@ -8,4 +8,15 @@ public class Ref {
             "\n!halo" +
             "\n!count --> `!count <number>`" +
             "\n!info --> `!info` or `!info @mention`";
+
+
+
+
+    public static String realName = "Real Name";
+    public static String nickName = "Nickname";
+    public static String theId = "ID";
+    public static String joinDate = "Join Date";
+    public static String status = "Status";
+    public static String roles = "Roles";
+    public static String playing = "Playing";
 }

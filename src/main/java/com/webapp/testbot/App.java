@@ -5,8 +5,13 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.GuildController;
+import sun.misc.IOUtils;
+import sun.nio.ch.IOUtil;
 
+import java.io.*;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -72,7 +77,7 @@ public class App extends ListenerAdapter {
                 try {
                     guildcntrl.setNickname(objMsg.getMentionedMembers().get(0), namatambahkelas).queue();
                 } catch (Exception e) {
-                    objMsgChannel.sendMessage(objMsg.getMentionedMembers().get(0).getNickname() + "\'s nickname cannot be changed to " + namatambahkelas + ". Reason:" + e).queue();
+                    objMsgChannel.sendMessage(objMsg.getMentionedMembers().get(0).getNickname() + "\'s nickname cannot be changed to " + namatambahkelas + ". Reason: " + e.getMessage()).queue();
                 }
 
 //----------------------------------------------------------------------------------------------
@@ -83,29 +88,23 @@ public class App extends ListenerAdapter {
 
                 DateTimeFormatter formatdate = DateTimeFormatter.ofPattern("yyyy-MM-dd H:m");
 
-
-
-
-
-
-
                 try {
-                    objMsg.getMentionedMembers().get(0); //try error code
+                    objMsg.getMentionedMembers().get(0); //try code that make error
 
-                    String[] roles = objMsg.getMentionedMembers().get(0).getRoles().toString().split(",");
+                    String roleraw = "";
                     String role = "";
-                    String mentionrole = "";
+                    String mentionrole = objMsg.getMentionedMembers().get(0).getRoles().get(0).toString();
 
+                    if(objMsg.getMentionedMembers().get(0).getRoles().size() > 0) {
+                        mentionrole = mentionrole.substring(mentionrole.indexOf(":") + 1, mentionrole.indexOf("("));
 
-                    if(objMsg.getMentionedMembers().get(0).getRoles().toString().length() > 2) {
-                        mentionrole = roles[0].substring(roles[0].indexOf(":") + 1, roles[0].indexOf("("));
-
-                        for (int i = 1; i < roles.length; i++) {
-                            role = roles[i].substring(roles[i].indexOf(":") + 1, roles[i].indexOf("("));
+                        for (int i = 1; i < objMsg.getMentionedMembers().get(0).getRoles().size(); i++) {
+                            roleraw = objMsg.getMentionedMembers().get(0).getRoles().get(i).toString();
+                            role = roleraw.substring(roleraw.indexOf(":") + 1, roleraw.indexOf("("));
                             mentionrole = mentionrole + ", " + role;
                         }
 
-                    }else if(objMsg.getMentionedMembers().get(0).getRoles().toString().length() == 2){
+                    }else if(objMsg.getMentionedMembers().get(0).getRoles().size() == 0){
                         mentionrole = "no roles";
                     }
 
@@ -118,15 +117,15 @@ public class App extends ListenerAdapter {
 
                     MessageEmbed embed = embedbuilder
                             .setTitle("Info about " + objMsg.getMentionedMembers().get(0).getNickname())
-                            .setColor(0xbb5acf)
+                            .setColor(objMsg.getMentionedMembers().get(0).getColorRaw())
                             .setThumbnail(objMsg.getMentionedUsers().get(0).getEffectiveAvatarUrl())
-                            .addField("huwala ini nama aslinya", objMsg.getMentionedUsers().get(0).getName(), true)
-                            .addField("ini nickname nya", objMsg.getMentionedMembers().get(0).getNickname(), true)
-                            .addField("ini ID nya", objMsg.getMentionedUsers().get(0).getId(), true)
-                            .addField("ini join date nya", String.valueOf(objMsg.getMentionedMembers().get(0).getJoinDate().format(formatdate)), true)
-                            .addField("ini statusnya", objMsg.getMentionedMembers().get(0).getOnlineStatus().getKey(), true)
-                            .addField("ini roles nya", mentionrole, true)
-                            .addField("lagi main", game,true)
+                            .addField(Ref.realName, objMsg.getMentionedUsers().get(0).getName(), true)
+                            .addField(Ref.nickName, objMsg.getMentionedMembers().get(0).getNickname(), true)
+                            .addField(Ref.theId, objMsg.getMentionedUsers().get(0).getId(), true)
+                            .addField(Ref.joinDate, String.valueOf(objMsg.getMentionedMembers().get(0).getJoinDate().format(formatdate)), true)
+                            .addField(Ref.status, objMsg.getMentionedMembers().get(0).getOnlineStatus().getKey(), true)
+                            .addField(Ref.roles, mentionrole, true)
+                            .addField(Ref.playing, game,true)
                             .build();
 
                     objMsgChannel.sendMessage(new MessageBuilder().setEmbed(embed).build()).queue();
@@ -134,16 +133,16 @@ public class App extends ListenerAdapter {
 
                 }catch(Exception e){
 
-                    String[] roles = objMember.getRoles().toString().split(",");
+                    String roleraw = "";
                     String role = "";
-                    String mentionrole = "";
+                    String mentionrole = objMember.getRoles().get(0).toString();
 
+                    if(objMember.getRoles().size() > 0) {
+                        mentionrole = mentionrole.substring(mentionrole.indexOf(":") + 1, mentionrole.indexOf("("));
 
-                    if(objMember.getRoles().toString().length() > 2) {
-                        mentionrole = roles[0].substring(roles[0].indexOf(":") + 1, roles[0].indexOf("("));
-
-                        for (int i = 1; i < roles.length; i++) {
-                            role = roles[i].substring(roles[i].indexOf(":") + 1, roles[i].indexOf("("));
+                        for (int i = 1; i < objMember.getRoles().size(); i++) {
+                            roleraw = objMember.getRoles().get(i).toString();
+                            role = roleraw.substring(roleraw.indexOf(":") + 1, roleraw.indexOf("("));
                             mentionrole = mentionrole + ", " + role;
                         }
 
@@ -159,25 +158,61 @@ public class App extends ListenerAdapter {
                     }
 
                     MessageEmbed embed = embedbuilder
-                            .setTitle("Nilai " + objMember.getNickname())
-                            .setColor(0xbb5acf)
+                            .setTitle("Info about " + objMember.getNickname())
+                            .setColor(objMember.getColorRaw())
                             .setThumbnail(objUser.getEffectiveAvatarUrl())
-                            .addField("huwala ini nama aslinya", objUser.getName(), true)
-                            .addField("ini nickname nya", objMember.getNickname(), true)
-                            .addField("ini ID nya", objUser.getId(), true)
-                            .addField("ini join date nya", String.valueOf(objMember.getJoinDate().format(formatdate)), true)
-                            .addField("ini statusnya", objMember.getOnlineStatus().getKey(), true)
-                            .addField("ini roles nya", mentionrole, true)
-                            .addField("lagi main", game,true)
+                            .addField(Ref.realName, objUser.getName(), true)
+                            .addField(Ref.nickName, objMember.getNickname(), true)
+                            .addField(Ref.theId, objUser.getId(), true)
+                            .addField(Ref.joinDate, String.valueOf(objMember.getJoinDate().format(formatdate)), true)
+                            .addField(Ref.status, objMember.getOnlineStatus().getKey(), true)
+                            .addField(Ref.roles, mentionrole, true)
+                            .addField(Ref.playing, game,true)
                             .build();
 
                     objMsgChannel.sendMessage(new MessageBuilder().setEmbed(embed).build()).queue();
-
-
                 }
 
 //----------------------------------------------------------------------------------------------
 
+            } else if(objMsg.getContentRaw().contains(Ref.prefix + "nilai")){
+
+                try(FileReader fr = new FileReader("nilai.txt")){
+                    LineNumberReader lnr = new LineNumberReader(fr);
+                    BufferedReader br = new BufferedReader(fr);
+
+                    String nilairaw;
+                    String nilaigabung;
+                    String nilai;
+                    int i = 0;
+                    ArrayList<String> arrayNilai = new ArrayList<>();
+                    while((nilairaw = br.readLine()) != null){
+
+                        if(nilairaw.contains("jovan")){
+                            nilaigabung = nilairaw.split(":")[1].split(" ")[i];
+                            i++;
+
+
+                        }
+                    }
+
+
+
+
+                }catch(Exception e){
+                    objMsgChannel.sendMessage("failed. Reason: " + e.getMessage()).queue();
+                }
+
+
+
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------------------------
             } //else if(){}
 
         }
